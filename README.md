@@ -40,4 +40,4 @@ All server-related requests (e.g., fetching responses from the Llama2 model) are
 - Node.js may be required if additional server-side features are utilized.
 - Make sure CORS settings are configured correctly in Flask to allow for communication between the frontend and the backend.
 
-For further details on the project setup and configuration, refer to the individual script files and the provided documentation.
+
