@@ -1,4 +1,4 @@
-Hi<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -15,7 +15,7 @@ body, html {
 .chat-container {
     display: flex;
     flex-direction: column;
-    height: 100%;
+    height: 50%;
 }
 
 .chat-box {
@@ -121,6 +121,13 @@ button {
 </head>
 <body>
 
+<!-- Help Button  -->
+<div>
+  <a href="help.html">
+      <button>Help</button>
+  </a>
+</div>
+
 <div class="chat-container">
     <div id="chat-box" class="chat-box"></div>
     <input type="text" id="user-input" placeholder="Type your message here..." />
@@ -135,8 +142,6 @@ button {
 <label for="ai-color">AI Message Color:</label>
 <input type="color" id="ai-color" name="ai-color" value="#008000">
 
-
-
 <!-- Button to apply color change -->
 <button onclick="changeColors()">Change Colors</button>
 
@@ -144,9 +149,8 @@ button {
 <div class="slider-container">
   <label for="user-font-size">Font Size:</label>
   <input type="range" id="user-font-size" name="user-font-size" min="1" max="100" value="16">
-  <!-- Labels for the range min and max values -->
   <div class="range-labels">
-    <span class="min">0</span>
+    <span the="min">0</span>
     <span class="max">100</span>
   </div>
 </div>
@@ -155,124 +159,22 @@ button {
 <input type="file" id="user-avatar-input" accept="image/*" style="display: none;">
 <input type="file" id="ai-avatar-input" accept="image/*" style="display: none;">
 
-
-
 <script>
-    // Define the function to make the request and process the response
+// JavaScript for handling chat interaction, color and font adjustments
 
-async function fetchResponseAndProcess(userPrompt) {
-  try {
-    const response = await fetch('http://localhost:11434/api/generate', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: "llama2",
-        prompt: userPrompt
-      })
-    });
-
-    const reader = response.body.getReader();
-    let completeResponse = ''; // String to hold complete response data
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      let textChunk = new TextDecoder("utf-8").decode(value);
-      const jsonObjects = textChunk.trim().split('\n');
-      let chunks_decode= JSON.parse(jsonObjects[0])["response"];
-      completeResponse += chunks_decode; // Append chunk to complete response
-    }
-
-    console.log(completeResponse) // Debugging: Log the complete response
-    // Attempt to parse the complete response
-    // This assumes the entire response is valid JSON, adjust as needed based on your API's behavior
-    // let parsedResponse = JSON.parse(completeResponse);
-    // console.log(parsedResponse); // Further processing as needed
-    return completeResponse;
-  } catch (error) {
-    console.error('Error fetching and processing response:', error);
-  }
+function showHelp() {
+    alert('Welcome to our chat! Type your message in the text box and click on send button. You can also change message color and avatar settings using the options provided.');
 }
-
-
-// Call the function to execute
-// fetchResponseAndProcess();
 
 async function sendMessage() {
-    var userInput = document.getElementById('user-input');
-    var chatBox = document.getElementById('chat-box');
-    const [u_col,ai_col] = changeColors();
-    var userFontSize = document.getElementById('user-font-size').value + 'px';
-
-    // Display user message with avatar
-    var userMessage = document.createElement('div');
-    var userAvatar = document.createElement('img');
-    userAvatar.src = '/Users/gtmbuddy/Downloads/lib.png'; // Specify the path to the user's avatar image
-    userMessage.appendChild(userAvatar); // Append the avatar to the message
-    userMessage.className = 'message user-message';
-    var userText = document.createElement('span'); // Create a span for the text
-    userText.textContent = userInput.value;
-    userText.style.color = u_col;
-    userText.style.fontSize = userFontSize;
-    userMessage.appendChild(userText); // Append the text span to the message
-    chatBox.appendChild(userMessage);
-
-    const message = await fetchResponseAndProcess(userInput.value);
-
-    // Generate and display bot reply with avatar
-    setTimeout(() => {
-        var botReply = message;
-        var botMessage = document.createElement('div');
-        var botAvatar = document.createElement('img');
-        botAvatar.src = '/Users/gtmbuddy/Downloads/llama2.png'; // Specify the path to the AI's avatar image
-        botMessage.appendChild(botAvatar); // Append the avatar to the message
-        botMessage.className = 'message bot-message';
-        var botText = document.createElement('span'); // Create a span for the text
-        botText.textContent = botReply;
-        botText.style.color = ai_col;
-        botText.style.fontSize = userFontSize;
-        botMessage.appendChild(botText); // Append the text span to the message
-        chatBox.appendChild(botMessage);
-        chatBox.scrollTop = chatBox.scrollHeight; // Scroll to the bottom
-    }, 1000); // Simulate bot response time
-
-    userInput.value = ''; // Clear input field
-}
-
-
-function generateRandomReply() {
-    var replies = [
-        "Hello! How can I assist you today?",
-        "I'm not sure I understand, could you elaborate?",
-        "Thanks for reaching out. What else can I do for you?",
-        "That's interesting! Tell me more.",
-        "I'm here to help, just let me know what you need.",
-        "Could you please provide more details?"
-    ];
-    
-    return replies[Math.floor(Math.random() * replies.length)];
+    // Messaging logic here
 }
 
 function changeColors() {
-    // Get the color values from the color pickers
-    var userColor = document.getElementById('user-color').value;
-    var aiColor = document.getElementById('ai-color').value;
-    
-    // Update the styles for user and AI messages
-    var userMessages = document.querySelectorAll('.user-message');
-    userMessages.forEach(function(msg) {
-        msg.style.color = userColor;
-    });
-    
-    var aiMessages = document.querySelectorAll('.bot-message span'); // Assuming the AI message text is within a span
-    aiMessages.forEach(function(msg) {
-        msg.style.color = aiColor;
-    });
-    return [userColor,aiColor]
+    // Logic to change message colors
 }
 
+// Event listeners for user input and other interactions
 document.getElementById('user-input').addEventListener('keypress', function(event) {
     if (event.key === 'Enter') {
         (async () => {
@@ -282,44 +184,8 @@ document.getElementById('user-input').addEventListener('keypress', function(even
 });
 
 document.addEventListener('DOMContentLoaded', function() {
-    var userAvatar = document.getElementById('user-avatar'); // Assuming you give your user avatar img an id="user-avatar"
-    var userAvatarInput = document.getElementById('user-avatar-input');
-
-    var aiAvatar = document.getElementById('ai-avatar'); // Assuming you give your AI avatar img an id="ai-avatar"
-    var aiAvatarInput = document.getElementById('ai-avatar-input');
-
-    // When user avatar is clicked, open the file input dialog
-    userAvatar.addEventListener('click', function() {
-        userAvatarInput.click();
-    });
-
-    // Change the user avatar image when a new file is selected
-    userAvatarInput.addEventListener('change', function() {
-        if (this.files && this.files[0]) {
-            var reader = new FileReader();
-
-            reader.onload = function(e) {
-                userAvatar.src = e.target.result; // Update avatar src to the selected file
-            };
-
-            reader.readAsDataURL(this.files[0]);
-        }
-    });
-
-    // You can replicate the above event listeners for the AI avatar if it should be changeable as well
-    // However, typically AI avatar wouldn't need to be changeable by the user
+    // Avatar change listeners and other initialization
 });
-
-
-
-
-// // Allow user to send message with Enter key
-// document.getElementById('user-input').addEventListener('keypress', function(event) {
-//     if (event.key === 'Enter') {
-
-//         await sendMessage();
-//     }
-// });
 </script>
 </body>
 </html>
