@@ -117,6 +117,11 @@ button {
     padding: 10px;
     cursor: pointer;
 }
+.calendar-container {
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+}
 </style>
 </head>
 <body>
@@ -155,11 +160,102 @@ button {
 <input type="file" id="user-avatar-input" accept="image/*" style="display: none;">
 <input type="file" id="ai-avatar-input" accept="image/*" style="display: none;">
 
-
+<div class="calendar-container">
+    <input type="date" id="date-input" />
+    <button onclick="fetchDataByDate()">Fetch Data</button>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
 <script>
     // Define the function to make the request and process the response
 
+function parseResponses(jsonStrings) {
+    let completeResponse = "";
+
+    for (let jsonString of jsonStrings) {
+        try {
+            let jsonObject = JSON.parse(jsonString);
+            completeResponse += jsonObject.response; // Append each response part to form the complete response
+        } catch (e) {
+            console.error("Error parsing JSON:", e);
+        }
+    }
+
+    return completeResponse;
+}
+
+// Helper function to delay a given number of milliseconds
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function fetchResponse(prompt) {
+    const url = "http://127.0.0.1:4000/api/proxy";
+    const settings = {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            model: "llama2",
+            prompt: prompt
+        })
+    };
+
+    try {
+        const response = await fetch(url, settings);
+        if (!response.ok) { // Check if the response status is not ok (200-299)
+            throw new Error('Server response was not ok.');
+        }
+        const data = await response.json(); // Assuming the server responds with JSON-formatted text
+        console.log("Received data:", data); // Log the received data
+
+        await delay(3000); // Wait for 3 seconds before proceeding
+
+        console.log("Processed data after 3 seconds delay:", data); // Log or process data after delay
+        return data; // Return the response data after delay
+    } catch (error) {
+        console.error('Error:', error);
+        return null; // Handle errors or return null if an error occurs
+    }
+}
+
+
+
+function fetchDataByDate(date) {
+    var settings = {
+        "url": "http://127.0.0.1:4000/api/read",
+        "method": "POST",
+        "timeout": 0,
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "data": JSON.stringify({
+            "date": date
+        }),
+    };
+
+    $.ajax(settings).done(function (response) {
+        console.log(response);
+    }).fail(function (error) {
+        console.error('Error fetching data:', error);
+    });
+}
+document.getElementById('date-input').addEventListener('change', function() {
+    var date = this.value;
+    if (date) {
+        fetchDataByDate(date);
+    }
+});
+function downloadObjectAsJson(exportObj, exportName){
+    var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj));
+    var downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href",     dataStr);
+    downloadAnchorNode.setAttribute("download", exportName + ".json");
+    document.body.appendChild(downloadAnchorNode); // required for firefox
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+}
 async function fetchResponseAndProcess(userPrompt) {
   try {
     const response = await fetch('http://localhost:11434/api/generate', {
@@ -175,12 +271,14 @@ async function fetchResponseAndProcess(userPrompt) {
 
     const reader = response.body.getReader();
     let completeResponse = ''; // String to hold complete response data
-
+    let saved_response ='';
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
       let textChunk = new TextDecoder("utf-8").decode(value);
       const jsonObjects = textChunk.trim().split('\n');
+      const response_new = parseResponses(jsonObjects);
+      saved_response = response_new;
       let chunks_decode= JSON.parse(jsonObjects[0])["response"];
       completeResponse += chunks_decode; // Append chunk to complete response
     }
@@ -190,15 +288,60 @@ async function fetchResponseAndProcess(userPrompt) {
     // This assumes the entire response is valid JSON, adjust as needed based on your API's behavior
     // let parsedResponse = JSON.parse(completeResponse);
     // console.log(parsedResponse); // Further processing as needed
-    return completeResponse;
+    return [completeResponse,saved_response];
   } catch (error) {
     console.error('Error fetching and processing response:', error);
   }
 }
 
+function fetchDataByDate(date) {
+    var settings = {
+        "url": "http://127.0.0.1:4000/api/read",
+        "method": "POST",
+        "timeout": 0,
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "data": JSON.stringify({
+            "date": date
+        }),
+    };
+
+    $.ajax(settings).done(function (response) {
+        downloadObjectAsJson(response, 'data-' + date);
+        alert('Data downloaded for date: ' + date);
+    }).fail(function (error) {
+        console.error('Error fetching data:', error);
+    });
+}
+
+function postDataToServer(ai, human) {
+    var settings = {
+        "url": "http://127.0.0.1:4000/api/save",
+        "method": "POST",
+        "timeout": 0,
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "data": JSON.stringify({
+            "ai": ai,
+            "human": human
+        }),
+    };
+
+    $.ajax(settings).done(function (response) {
+        console.log(response);
+    });
+}
+
+
+
+
+
 
 // Call the function to execute
 // fetchResponseAndProcess();
+
 
 async function sendMessage() {
     var userInput = document.getElementById('user-input');
@@ -218,12 +361,21 @@ async function sendMessage() {
     userText.style.fontSize = userFontSize;
     userMessage.appendChild(userText); // Append the text span to the message
     chatBox.appendChild(userMessage);
+    let message;
+    fetchResponse(userMessage.textContent).then(response => {
+        console.log("Received from server:", response);
+        message = response["combined_response"]
+        
+    });
+    postDataToServer(message, userMessage.textContent);
 
-    const message = await fetchResponseAndProcess(userInput.value);
+    // const [message,message1] = await fetchResponseAndProcess(userInput.value);
 
     // Generate and display bot reply with avatar
     setTimeout(() => {
+
         var botReply = message;
+        // var return_message = message1;
         var botMessage = document.createElement('div');
         var botAvatar = document.createElement('img');
         botAvatar.src = '/Users/gtmbuddy/Downloads/llama2.png'; // Specify the path to the AI's avatar image
