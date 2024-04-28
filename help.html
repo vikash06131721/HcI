@@ -5,9 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Help Page</title>
     <style>
+        .contact-info {
+            margin: 1px 0; /* Reduces the top and bottom margin to 1px */
+            padding: 0; /* Ensures there's no additional padding */
+        }
+
         body {
             font-family: Arial, sans-serif;
-            line-height: 2.2;
+            line-height: 2;
             margin: 0;
             padding: 0;
             color: #333;
@@ -17,7 +22,7 @@
         header {
             background: #0056b3;
             color: #fff;
-            padding: 10px 20px;
+            padding: 8px 15px;
             text-align: center;
         }
 
@@ -49,7 +54,7 @@
         }
 
         article h3 {
-            color: #0056b3;
+            color: #00448c;
         }
 
         footer {
@@ -77,24 +82,31 @@
 </head>
 <body>
     <header>
-        <h1>llama Help Center</h1>
+        <h1 class="contact-info">llama Help Center</h1>
         <nav>
+            <ul>
+                <li class="contact-info" ><a href="chat.html">Home Page</a></li>
+            </ul>
         </nav>
     </header>
     <main>
         <section id="faq">
-            <h2>Frequently Asked Questions</h2>
+            <h2 class="contact-info">Frequently Asked Questions</h2>
             <article>
-                <h3>Question 1</h3>
-                <p>This section will contain information on how to ...</p>
+                <h3 class="contact-info">1) How can I change the font size of the messages?</h3>
+                <p class="contact-info">There is a slide bar for changing the font size, using that slide bar you can easily change font size for your messages!</p>
             </article>
             <article>
-                <h3>Question 2</h3>
-                <p>This section will contain information on how to ...</p>
+                <h3 class="contact-info">2) Can I have different color for each AI and User messages?</h3>
+                <p class="contact-info">Sure! There are two different color palette for both User and AI messages. You can select different color for each of them.</p>
+            </article>
+            <article>
+                <h3 class="contact-info">3) Can I save a history for a specific date and send it to another person?</h3>
+                <p class="contact-info">Sure! Using a calendar you can find the date that you want and by clicking on the fetch data button you can easily download your desired history and send it to anyone!</p>
             </article>
         </section>
         <section id="video">
-            <h2>Video Tutorial</h2>
+            <h2 class="contact-info">Video Tutorial</h2>
             <div class="video-tutorial">
                 <video controls>
                     <source src="tutorial.mp4" type="video/mp4">
@@ -102,11 +114,10 @@
             </div>
         </section>
         <section id="contact">
-            <h2>Contact Us</h2>
-            <p>If you need further assistance, please contact our support team.</p>
-            <p>Email: support@ou.com       -       Phone: 123-456-7890</p>
+            <h2 class="contact-info">Contact Us</h2>
+            <p class="contact-info">If you need further assistance, please contact our support team.</p>
+            <p class="contact-info">Email: support@ou.com - Phone: 123-456-7890</p>
         </section>
-
     </main>
 </body>
 </html>
