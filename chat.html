@@ -165,6 +165,11 @@ button {
     <button onclick="fetchDataByDate()">Fetch Data</button>
 </div>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.min.js" integrity="sha384-rX6qu3kG/ygO8UkZxlianfzyBklbNk2cO3T5YTOzBWTOWt+9qBgydKaBu6zD8JL4" crossorigin="anonymous"></script>
+<script type="text/javascript"
+   src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
+</script>
+
 
 <script>
     // Define the function to make the request and process the response
@@ -343,55 +348,96 @@ function postDataToServer(ai, human) {
 // fetchResponseAndProcess();
 
 
-async function sendMessage() {
-    var userInput = document.getElementById('user-input');
-    var chatBox = document.getElementById('chat-box');
-    const [u_col,ai_col] = changeColors();
-    var userFontSize = document.getElementById('user-font-size').value + 'px';
+// async function sendMessage(input_message,ai_col,userInput,userFontSize,chatBox) {
+ 
+//     let response = await fetchResponse(input_message);
+//     let message = response["combined_response"];
 
-    // Display user message with avatar
-    var userMessage = document.createElement('div');
-    var userAvatar = document.createElement('img');
-    userAvatar.src = '/Users/gtmbuddy/Downloads/lib.png'; // Specify the path to the user's avatar image
-    userMessage.appendChild(userAvatar); // Append the avatar to the message
-    userMessage.className = 'message user-message';
-    var userText = document.createElement('span'); // Create a span for the text
-    userText.textContent = userInput.value;
-    userText.style.color = u_col;
-    userText.style.fontSize = userFontSize;
-    userMessage.appendChild(userText); // Append the text span to the message
-    chatBox.appendChild(userMessage);
-    let message;
-    fetchResponse(userMessage.textContent).then(response => {
-        console.log("Received from server:", response);
-        message = response["combined_response"]
-        
-    });
-    postDataToServer(message, userMessage.textContent);
 
-    // const [message,message1] = await fetchResponseAndProcess(userInput.value);
+//     setTimeout(() => {
 
-    // Generate and display bot reply with avatar
+//         var botReply = message;
+//         // var return_message = message1;
+//         var botMessage = document.createElement('div');
+//         var botAvatar = document.createElement('img');
+//         botAvatar.src = '/Users/gtmbuddy/Downloads/llama2.png'; // Specify the path to the AI's avatar image
+//         botMessage.appendChild(botAvatar); // Append the avatar to the message
+//         botMessage.className = 'message bot-message';
+//         var botText = document.createElement('span'); // Create a span for the text
+//         botText.textContent = botReply;
+//         botText.style.color = ai_col;
+//         botText.style.fontSize = userFontSize;
+//         botMessage.appendChild(botText); // Append the text span to the message
+//         chatBox.appendChild(botMessage);
+//         chatBox.scrollTop = chatBox.scrollHeight; // Scroll to the bottom
+//     }, 1000); // Simulate bot response time
+
+//     userInput.value = ''; // Clear input field
+//     return message;
+// }
+
+// async function sendMessage(input_message, ai_col, userInput, userFontSize, chatBox) {
+//     let response = await fetchResponse(input_message);
+//     let messages = response["combined_response"].split("\n").filter(msg => msg.trim().length > 0); // Filter out empty or whitespace-only lines
+
+//     setTimeout(() => {
+//         var $botMessage = $('<div>', {class: 'message bot-message'});
+//         var $botAvatar = $('<img>', {src: '/Users/gtmbuddy/Downloads/llama2.png'});
+//         $botMessage.append($botAvatar);
+
+//         if (messages.length > 1) {
+//             var $botText = $('<ul>'); // Create a list if there are multiple messages
+//             messages.forEach(msg => {
+//                 $botText.append($('<li>').text(msg).css({'color': ai_col, 'font-size': userFontSize}));
+//             });
+//         } else {
+//             var $botText = $('<span>').text(messages[0] || '').css({'color': ai_col, 'font-size': userFontSize}); // Use a span for a single message or if all filtered out
+//         }
+
+//         $botMessage.append($botText);
+//         $(chatBox).append($botMessage);
+//         $(chatBox).scrollTop(chatBox.scrollHeight);
+//     }, 1000); // Simulate bot response time
+
+//     $(userInput).val(''); // Clear input field
+//     return messages; // Return the processed messages (as an array or single string)
+// }
+async function sendMessage(input_message, ai_col, userInput, userFontSize, chatBox) {
+    let response = await fetchResponse(input_message);
+    let messages = response["combined_response"].split("\n").filter(msg => msg.trim().length > 0);
+
     setTimeout(() => {
+        var $botMessage = $('<div>', {class: 'message bot-message'});
+        var $botAvatar = $('<img>', {src: '/Users/gtmbuddy/Downloads/llama2.png'});
+        $botMessage.append($botAvatar);
 
-        var botReply = message;
-        // var return_message = message1;
-        var botMessage = document.createElement('div');
-        var botAvatar = document.createElement('img');
-        botAvatar.src = '/Users/gtmbuddy/Downloads/llama2.png'; // Specify the path to the AI's avatar image
-        botMessage.appendChild(botAvatar); // Append the avatar to the message
-        botMessage.className = 'message bot-message';
-        var botText = document.createElement('span'); // Create a span for the text
-        botText.textContent = botReply;
-        botText.style.color = ai_col;
-        botText.style.fontSize = userFontSize;
-        botMessage.appendChild(botText); // Append the text span to the message
-        chatBox.appendChild(botMessage);
-        chatBox.scrollTop = chatBox.scrollHeight; // Scroll to the bottom
-    }, 1000); // Simulate bot response time
+        var $botText;
+        if (messages.length > 1) {
+            $botText = $('<ul>');
+            messages.forEach(msg => {
+                $botText.append($('<li>').text(msg).css({'color': ai_col, 'font-size': userFontSize}));
+            });
+        } else {
+            $botText = $('<span>').text(messages[0] || '').css({'color': ai_col, 'font-size': userFontSize});
+        }
 
-    userInput.value = ''; // Clear input field
+        $botMessage.append($botText);
+        $(chatBox).append($botMessage);
+        $(chatBox).scrollTop(chatBox.scrollHeight);
+
+        // Tell MathJax to typeset the newly added content
+        MathJax.typesetPromise([$botMessage[0]]).then(() => {
+            console.log('MathJax has finished rendering the math!');
+        }).catch((err) => console.error('MathJax rendering error:', err));
+
+    }, 1000);
+
+    $(userInput).val(''); // Clear input field
+    return messages; // Return the processed messages (as an array or single string)
 }
+
+
+
 
 
 function generateRandomReply() {
@@ -428,7 +474,27 @@ function changeColors() {
 document.getElementById('user-input').addEventListener('keypress', function(event) {
     if (event.key === 'Enter') {
         (async () => {
-            await sendMessage();
+            var userInput = document.getElementById('user-input');
+            var chatBox = document.getElementById('chat-box');
+            const [u_col,ai_col] = changeColors();
+            var userFontSize = document.getElementById('user-font-size').value + 'px';
+
+            // Display user message with avatar
+            var userMessage = document.createElement('div');
+            var userAvatar = document.createElement('img');
+            userAvatar.src = '/Users/gtmbuddy/Downloads/lib.png'; // Specify the path to the user's avatar image
+            userMessage.appendChild(userAvatar); // Append the avatar to the message
+            userMessage.className = 'message user-message';
+            var userText = document.createElement('span'); // Create a span for the text
+            userText.textContent = userInput.value;
+            userText.style.color = u_col;
+            userText.style.fontSize = userFontSize;
+            userMessage.appendChild(userText); // Append the text span to the message
+            chatBox.appendChild(userMessage);
+            let inp_msg= userMessage.textContent;
+            const message =await sendMessage(inp_msg,ai_col,userInput,userFontSize,chatBox);
+            postDataToServer(message, inp_msg);
+
         })();
     }
 });
